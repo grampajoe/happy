@@ -53,5 +53,5 @@ It's down. :(
 
 ## Running the tests
 
-1. Install [tox](https://tox.readthedocs.org) with `pip nstall tox`.
+1. Install [tox](https://tox.readthedocs.org) with `pip install tox`.
 2. Run the tests with `tox`.
