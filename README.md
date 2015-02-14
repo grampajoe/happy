@@ -4,19 +4,33 @@ Quickly set up and tear down Heroku apps!
 
 ## Quickly starting
 
-Log in with the [Heroku toolbelt](https://toolbelt.heroku.com/), add an
-[app.json manifest](https://devcenter.heroku.com/articles/app-json-schema)
-to your thing on GitHub, then do this:
+Add an [app.json manifest](https://devcenter.heroku.com/articles/app-json-schema)
+that looks kinda like this:
 
-```bash
-$ pip install happy
-$ happy up username/repo --token=`heroku auth:token`
+```json
+{
+  "name": "My App Thing",
+  "repository": "https://github.com/helloitsme/thingy"
+}
 ```
 
-Then get rid of it like:
+Push that to your thing's `master` branch on GitHub so Heroku can find it.
 
-```bash
+Log in with the [Heroku toolbelt](https://toolbelt.heroku.com/), then do this:
+
+```
+$ pip install happy
+$ happy up
+Creating app...
+It's up! :) https://butt-man-123.herokuapp.com
+```
+
+Do some things, then get rid of it like:
+
+```
 $ happy down
+Destroying app...
+It's down. :(
 ```
 
 > Note: This doesn't work yet! I'm just getting it started!!!!!!!!!
