@@ -2,6 +2,9 @@
 
 Quickly set up and tear down Heroku apps!
 
+> Note: This doesn't work yet! I'm just getting it started!!!!!!!!!
+> (Don't use it.)
+
 ## Quickly starting
 
 Add an [app.json manifest](https://devcenter.heroku.com/articles/app-json-schema)
@@ -10,7 +13,16 @@ that looks kinda like this:
 ```json
 {
   "name": "My App Thing",
-  "repository": "https://github.com/helloitsme/thingy"
+  "repository": "https://github.com/helloitsme/thingy",
+  "env": {
+    "FROBULATION_LIMIT": {
+      "description": "Maximum frobulations per lunar cycle.",
+      "value": "7"
+    }
+  },
+  "addons": [
+    "pusher"
+  ]
 }
 ```
 
@@ -25,16 +37,16 @@ Creating app...
 It's up! :) https://butt-man-123.herokuapp.com
 ```
 
-Do some things, then get rid of it like:
+That's it! You made a temporary app with all the fixins, which you can
+use to continuously integrate or whatever you want to do.
+
+Then, you can get rid of it like:
 
 ```
 $ happy down
 Destroying app...
 It's down. :(
 ```
-
-> Note: This doesn't work yet! I'm just getting it started!!!!!!!!!
-> (Don't use it)
 
 ## Running the tests
 
