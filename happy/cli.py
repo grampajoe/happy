@@ -44,6 +44,10 @@ def up(tarball_url):
         click.echo('No tarball URL found.')
         sys.exit(1)
 
+    click.echo('Creating app...')
+
     app_name = happy.up(tarball_url=tarball_url)
 
     _write_app_name(app_name)
+
+    click.echo("It's up! :) https://%s.herokuapp.com" % app_name)

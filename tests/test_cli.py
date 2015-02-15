@@ -89,3 +89,19 @@ def test_up_writes_app_name(up, runner):
             app_name = f.read()
 
     assert app_name == 'butt-man-123'
+
+
+@mock.patch('happy.up')
+def test_up_prints_info(up, runner):
+    """`happy.up` should print status info."""
+    up.return_value = 'butt-man-123'
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(cli, ['up', '--tarball-url=example.com'])
+
+    expected = (
+        "Creating app...\n"
+        "It's up! :) https://butt-man-123.herokuapp.com\n"
+    )
+
+    assert result.output == expected
