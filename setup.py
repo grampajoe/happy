@@ -9,7 +9,8 @@ setup(
     url="https://github.com/grampajoe/happy",
     description="Quickly set up and tear down Heroku apps!",
     install_requires=[
-        'click'
+        'click',
+        'requests'
     ],
     entry_points="""
         [console_scripts]
