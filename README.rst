@@ -68,7 +68,8 @@ up
 
 Brings up a Heroku app.
 
---tarball-url
+- ``--tarball-url``
+
   (optional) URL of the tarball containing app.json. If this is not given,
   happy tries to infer it from an ``app.json`` file in the current directory.
 
