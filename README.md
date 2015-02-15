@@ -2,6 +2,7 @@
 
 [![Travis](https://img.shields.io/travis/grampajoe/happy.svg)](https://travis-ci.org/grampajoe/happy)
 [![Coveralls](https://img.shields.io/coveralls/grampajoe/happy.svg)](https://coveralls.io/r/grampajoe/happy)
+[![Scrutinizer](https://img.shields.io/scrutinizer/g/grampajoe/happy.svg)](https://scrutinizer-ci.com/g/grampajoe/happy/)
 
 Quickly set up and tear down Heroku apps!
 
