@@ -8,5 +8,12 @@ setup(
     author_email="joe@joefriedl.net",
     url="https://github.com/grampajoe/happy",
     description="Quickly set up and tear down Heroku apps!",
+    install_requires=[
+        'click'
+    ],
+    entry_points="""
+        [console_scripts]
+        happy=happy.cli:cli
+    """,
     packages=find_packages(exclude=['tests'])
 )
