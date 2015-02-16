@@ -69,6 +69,12 @@ Brings up a Heroku app.
 The app name is stored in a file called ``.happy`` in the working directory so
 happy can find it later.
 
+- ``--auth-token``
+
+  (optional) Heroku API auth token. If this is not given, happy assumes you're
+  logged in through Heroku CLI, i.e. your token is stored in your ``netrc``
+  file.
+
 - ``--tarball-url``
 
   (optional) URL of the tarball containing app.json. If this is not given,
@@ -80,6 +86,12 @@ down
 Brings down a Heroku app.
 
 The app name is read from a file called ``.happy`` in the working directory.
+
+- ``--auth-token``
+
+  (optional) Heroku API auth token. If this is not given, happy assumes you're
+  logged in through Heroku CLI, i.e. your token is stored in your ``netrc``
+  file.
 
 Running the tests
 -----------------

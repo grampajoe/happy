@@ -15,8 +15,8 @@ def test_heroku():
     assert heroku
 
 
-@mock.patch('happy.heroku.requests')
-def test_heroku_api_request(requests):
+@mock.patch('happy.heroku.Session')
+def test_heroku_api_request(session):
     """Heroku.api_request should send an API request."""
     heroku = Heroku()
 
@@ -27,20 +27,43 @@ def test_heroku_api_request(requests):
         headers={'test': 'header'},
     )
 
-    requests.request.assert_called_with(
+    session().request.assert_called_with(
         'POST',
         'https://api.heroku.com/endpoint',
         data=json.dumps({'butt': 'man'}),
         headers={
-            'Content-type': 'application/json',
-            'Accept': 'application/vnd.heroku+json; version=3',
             'test': 'header',
         },
     )
 
 
-@mock.patch('happy.heroku.requests')
-def test_heroku_api_request_fail(requests):
+@mock.patch('happy.heroku.Session')
+def test_heroku_api_request_headers(session):
+    """Heroku.api_request should attach common headers to the session."""
+    heroku = Heroku()
+
+    heroku.api_request('GET', '/test')
+
+    assert session().trust_env
+    assert session().headers == {
+        'Content-type': 'application/json',
+        'Accept': 'application/vnd.heroku+json; version=3',
+    }
+
+
+@mock.patch('happy.heroku.Session')
+def test_heroku_api_request_auth_token(session):
+    """Heroku.api_request should send its auth token."""
+    heroku = Heroku(auth_token='12345')
+
+    heroku.api_request('GET', '/test')
+
+    assert session().trust_env is False
+    assert session().headers['Authorization'] == 'Bearer 12345'
+
+
+@mock.patch('happy.heroku.Session')
+def test_heroku_api_request_fail(session):
     """Heroku.api_request should raise APIError on failures."""
     heroku = Heroku()
 
@@ -50,7 +73,7 @@ def test_heroku_api_request_fail(requests):
         'message': 'IMPROPER CODING',
     }
 
-    requests.request.return_value = bad_response
+    session().request.return_value = bad_response
 
     with pytest.raises(APIError) as exc:
         heroku.api_request('GET', '/celery-man', data={
@@ -62,15 +85,15 @@ def test_heroku_api_request_fail(requests):
     assert 'IMPROPER CODING' in str(exc.value)
 
 
-@mock.patch('happy.heroku.requests')
-def test_heroku_api_request_big_fail(requests):
+@mock.patch('happy.heroku.Session')
+def test_heroku_api_request_big_fail(session):
     """Heroku.api_request should raise all content if it's not JSON."""
     heroku = Heroku()
 
     bad_response = mock.Mock(ok=False, content='not JSON at all')
     bad_response.json.side_effect = ValueError('Bad JSON????')
 
-    requests.request.return_value = bad_response
+    session().request.return_value = bad_response
 
     with pytest.raises(APIError) as exc:
         heroku.api_request('GET', '/something')
