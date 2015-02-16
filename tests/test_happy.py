@@ -54,3 +54,10 @@ def test_wait(heroku):
         mock.call('12345'),
         mock.call('12345'),
     ])
+
+
+def test_delete(heroku):
+    """Should delete the app."""
+    happy.delete(app_name='butt-man-123')
+
+    heroku.delete_app.assert_called_with(app_name='butt-man-123')

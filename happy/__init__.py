@@ -30,3 +30,13 @@ def wait(build_id):
         if api.check_build_status(build_id):
             break
         sleep(3)
+
+
+def delete(app_name):
+    """Deletes a Heroku app.
+
+    :param app_name: Name of the Heroku app to delete.
+    """
+    api = Heroku()
+
+    api.delete_app(app_name=app_name)

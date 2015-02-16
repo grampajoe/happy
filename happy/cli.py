@@ -2,6 +2,7 @@
 The command-line interface for happy!
 """
 import json
+import os
 import subprocess
 import sys
 
@@ -29,6 +30,20 @@ def _write_app_name(app_name):
         f.write(str(app_name))
 
 
+def _read_app_name():
+    """Reads the app name from the .happy file."""
+    try:
+        with click.open_file('.happy', 'r') as f:
+            return f.read().strip()
+    except IOError:
+        return None
+
+
+def _delete_app_name_file():
+    """Deletes the .happy file. :("""
+    os.remove('.happy')
+
+
 @click.group(name='happy')
 def cli():
     """Quickly set up and tear down Heroku apps!"""
@@ -50,11 +65,30 @@ def up(tarball_url):
 
     click.echo(app_name)
 
-    _write_app_name(app_name)
-
     click.echo('Building... ', nl=False)
 
     happy.wait(build_id)
 
+    _write_app_name(app_name)
+
     click.echo('done')
     click.echo("It's up! :) https://%s.herokuapp.com" % app_name)
+
+
+@cli.command(name='down')
+def down():
+    """Brings down a Heroku app."""
+    app_name = _read_app_name()
+
+    if not app_name:
+        click.echo('No app is running.')
+        sys.exit(1)
+
+    click.echo('Destroying app %s... ' % app_name, nl=False)
+
+    happy.delete(app_name=app_name)
+
+    _delete_app_name_file()
+
+    click.echo('done')
+    click.echo("It's down. :(")

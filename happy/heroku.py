@@ -65,7 +65,11 @@ class Heroku():
         return self.api_request('POST', '/app-setups', data=data)
 
     def check_build_status(self, build_id):
-        """Checks the status of an app-setups build."""
+        """Checks the status of an app-setups build.
+
+        :param build_id: ID of the build to check.
+        :returns: ``True`` if succeeded, ``False`` if pending.
+        """
         data = self.api_request('GET', '/app-setups/%s' % build_id)
 
         status = data.get('status')
@@ -76,3 +80,10 @@ class Heroku():
             return True
         else:
             raise BuildError(data.get('failure_message'))
+
+    def delete_app(self, app_name):
+        """Deletes an app.
+
+        :param app_name: Name of the app to delete.
+        """
+        self.api_request('DELETE', '/apps/%s' % app_name)
