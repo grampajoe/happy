@@ -10,9 +10,6 @@ happy
 
 Quickly set up and tear down Heroku apps!
 
-    Note: This doesn't work yet! I'm just getting it started!!!!!!!!!
-    (Don't use it.)
-
 Quickly starting
 ----------------
 
