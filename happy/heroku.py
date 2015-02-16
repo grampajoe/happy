@@ -16,6 +16,13 @@ class BuildError(Exception):
 
 class Heroku(object):
     """Methods for interacting with the Heroku API."""
+    def __init__(self, auth_token=None):
+        """Intialize the class.
+
+        :param auth_token: A Heroku API auth token.
+        """
+        self._auth_token = auth_token
+
     def api_request(self, method, endpoint, data=None, *args, **kwargs):
         """Sends an API request to Heroku.
 
@@ -31,6 +38,9 @@ class Heroku(object):
             'Content-type': 'application/json',
             'Accept': 'application/vnd.heroku+json; version=3',
         }
+
+        if self._auth_token:
+            headers['Authorization'] = 'Bearer %s' % self._auth_token
 
         if data:
             data = json.dumps(data)

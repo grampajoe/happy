@@ -8,15 +8,20 @@ from time import sleep
 
 class Happy(object):
     """The happiest interface of all."""
+    def __init__(self, auth_token=None):
+        """Initializes the class.
+
+        :param auth_token: A Heroku API auth token.
+        """
+        self._api = Heroku(auth_token=auth_token)
+
     def create(self, tarball_url):
         """Creates a Heroku app-setup build.
 
         :param tarball_url: URL of a tarball containing an ``app.json``.
         :returns: A tuple with ``(build_id, app_name)``.
         """
-        api = Heroku()
-
-        data = api.create_build(tarball_url=tarball_url)
+        data = self._api.create_build(tarball_url=tarball_url)
 
         return (data['id'], data['app']['name'])
 
@@ -25,10 +30,8 @@ class Happy(object):
 
         :param build_id: ID of the app-setup build for which to wait.
         """
-        api = Heroku()
-
         while True:
-            if api.check_build_status(build_id):
+            if self._api.check_build_status(build_id):
                 break
             sleep(3)
 
@@ -37,6 +40,4 @@ class Happy(object):
 
         :param app_name: Name of the Heroku app to delete.
         """
-        api = Heroku()
-
-        api.delete_app(app_name=app_name)
+        self._api.delete_app(app_name=app_name)

@@ -40,6 +40,18 @@ def test_heroku_api_request(requests):
 
 
 @mock.patch('happy.heroku.requests')
+def test_heroku_api_request_auth_token(requests):
+    """Heroku.api_request should pass in its auth token."""
+    heroku = Heroku(auth_token='12345')
+
+    heroku.api_request('GET', '/test')
+
+    args_, kwargs = requests.request.call_args
+
+    assert kwargs['headers']['Authorization'] == 'Bearer 12345'
+
+
+@mock.patch('happy.heroku.requests')
 def test_heroku_api_request_fail(requests):
     """Heroku.api_request should raise APIError on failures."""
     heroku = Heroku()

@@ -12,7 +12,7 @@ from happy.cli import cli
 
 @pytest.fixture
 def happy(request):
-    """Returns a mocked Happy instance."""
+    """Returns a mocked Happy class."""
     patcher = mock.patch('happy.cli.Happy')
     cls = patcher.start()
 
@@ -24,7 +24,7 @@ def happy(request):
     happy_instance = cls()
     happy_instance.create.return_value = ('12345', 'butt-man-123')
 
-    return happy_instance
+    return cls
 
 
 @pytest.fixture
@@ -49,12 +49,26 @@ def test_up(happy, runner):
     assert result.exit_code == 0
 
 
+def test_up_auth_token(happy, runner):
+    """Running up should pass the --auth-token option to Happy."""
+    with runner.isolated_filesystem():
+        runner.invoke(cli, [
+            'up',
+            '--tarball-url=example.com',
+            '--auth-token=12345',
+        ])
+
+    args_, kwargs = happy.call_args
+
+    assert kwargs['auth_token'] == '12345'
+
+
 def test_up_tarball_url(happy, runner):
     """Running up should pass the --tarball-url option to Happy.create."""
     with runner.isolated_filesystem():
         runner.invoke(cli, ['up', '--tarball-url=example.com'])
 
-    args_, kwargs = happy.create.call_args
+    args_, kwargs = happy().create.call_args
 
     assert kwargs['tarball_url'] == 'example.com'
 
@@ -67,7 +81,7 @@ def test_up_tarball_url_app_json(happy, runner):
 
         runner.invoke(cli, ['up'])
 
-    args_, kwargs = happy.create.call_args
+    args_, kwargs = happy().create.call_args
 
     assert kwargs['tarball_url'] == \
         'https://github.com/butt/man/tarball/master/'
@@ -117,8 +131,24 @@ def test_down(happy, runner):
 
         result = runner.invoke(cli, ['down'])
 
-    happy.delete.assert_called_with(app_name='butt-man-123')
+    happy().delete.assert_called_with(app_name='butt-man-123')
     assert result.exit_code == 0
+
+
+def test_down_auth_token(happy, runner):
+    """Running down should pass the --auth-token option to Happy."""
+    with runner.isolated_filesystem():
+        with open('.happy', 'w') as f:
+            f.write('butt-man-123')
+
+        runner.invoke(cli, [
+            'down',
+            '--auth-token=12345',
+        ])
+
+    args_, kwargs = happy.call_args
+
+    assert kwargs['auth_token'] == '12345'
 
 
 def test_down_deletes_app_name_file(happy, runner):
@@ -138,7 +168,7 @@ def test_down_no_app(happy, runner):
     with runner.isolated_filesystem():
         result = runner.invoke(cli, ['down'])
 
-    assert happy.delete.called is False
+    assert happy().delete.called is False
     assert result.exit_code == 1
 
 

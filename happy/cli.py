@@ -51,7 +51,8 @@ def cli():
 
 @cli.command(name='up')
 @click.option('--tarball-url', help='URL of the tarball containing app.json.')
-def up(tarball_url):
+@click.option('--auth-token', help='Heroku API auth token.')
+def up(tarball_url, auth_token):
     """Brings up a Heroku app."""
     tarball_url = tarball_url or _infer_tarball_url()
 
@@ -59,7 +60,7 @@ def up(tarball_url):
         click.echo('No tarball URL found.')
         sys.exit(1)
 
-    happy = Happy()
+    happy = Happy(auth_token=auth_token)
 
     click.echo('Creating app... ', nl=False)
 
@@ -78,7 +79,8 @@ def up(tarball_url):
 
 
 @cli.command(name='down')
-def down():
+@click.option('--auth-token', help='Heroku API auth token.')
+def down(auth_token):
     """Brings down a Heroku app."""
     app_name = _read_app_name()
 
@@ -86,7 +88,7 @@ def down():
         click.echo('No app is running.')
         sys.exit(1)
 
-    happy = Happy()
+    happy = Happy(auth_token=auth_token)
 
     click.echo('Destroying app %s... ' % app_name, nl=False)
 
