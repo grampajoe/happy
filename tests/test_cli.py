@@ -31,44 +31,55 @@ def test_help(runner):
     assert 'Usage: happy' in result.output
 
 
-@mock.patch('happy.up')
-def test_up(up, runner):
-    """`happy up` should call happy:up."""
+@mock.patch('happy.wait')
+@mock.patch('happy.create')
+def test_up(create, wait, runner):
+    """`happy up` should call happy:create and happy:wait."""
+    create.return_value = ('12345', 'butt-man-123')
+
     with runner.isolated_filesystem():
         result = runner.invoke(cli, ['up', '--tarball-url=example.com'])
 
     assert result.exit_code == 0
-    assert up.called
+    assert create.called
+    assert wait.called
 
 
-@mock.patch('happy.up')
-def test_up_tarball_url(up, runner):
+@mock.patch('happy.wait')
+@mock.patch('happy.create')
+def test_up_tarball_url(create, wait, runner):
     """`happy up` should pass in the --tarball-url option."""
+    create.return_value = ('12345', 'butt-man-123')
+
     with runner.isolated_filesystem():
         runner.invoke(cli, ['up', '--tarball-url=example.com'])
 
-    args_, kwargs = up.call_args
+    args_, kwargs = create.call_args
 
     assert kwargs['tarball_url'] == 'example.com'
 
 
-@mock.patch('happy.up')
-def test_up_tarball_url_app_json(up, runner):
+@mock.patch('happy.wait')
+@mock.patch('happy.create')
+def test_up_tarball_url_app_json(create, wait, runner):
     """`happy up` should infer the tarball URL from app.json."""
+    create.return_value = ('12345', 'butt-man-123')
+
     with runner.isolated_filesystem():
         with open('app.json', 'w') as f:
             f.write('{"repository": "https://github.com/butt/man"}')
 
         runner.invoke(cli, ['up'])
 
-    args_, kwargs = up.call_args
+    args_, kwargs = create.call_args
 
     assert kwargs['tarball_url'] == \
         'https://github.com/butt/man/tarball/master/'
 
 
-@mock.patch('happy.up')
-def test_up_no_tarball_url(up, runner):
+@mock.patch('happy.wait')
+@mock.patch('happy.create')
+def test_up_no_tarball_url(create, wait, runner):
     """`happy up` should fail if it can't infer the tarball URL."""
     with runner.isolated_filesystem():
         result = runner.invoke(cli, ['up'])
@@ -77,10 +88,11 @@ def test_up_no_tarball_url(up, runner):
     assert 'no tarball' in result.output.lower()
 
 
-@mock.patch('happy.up')
-def test_up_writes_app_name(up, runner):
+@mock.patch('happy.wait')
+@mock.patch('happy.create')
+def test_up_writes_app_name(create, wait, runner):
     """`happy up` should write the app name to .happy."""
-    up.return_value = 'butt-man-123'
+    create.return_value = ('12345', 'butt-man-123')
 
     with runner.isolated_filesystem():
         runner.invoke(cli, ['up', '--tarball-url=example.com'])
@@ -91,16 +103,18 @@ def test_up_writes_app_name(up, runner):
     assert app_name == 'butt-man-123'
 
 
-@mock.patch('happy.up')
-def test_up_prints_info(up, runner):
+@mock.patch('happy.wait')
+@mock.patch('happy.create')
+def test_up_prints_info(create, wait, runner):
     """`happy.up` should print status info."""
-    up.return_value = 'butt-man-123'
+    create.return_value = ('12345', 'butt-man-123')
 
     with runner.isolated_filesystem():
         result = runner.invoke(cli, ['up', '--tarball-url=example.com'])
 
     expected = (
-        "Creating app...\n"
+        "Creating app... butt-man-123\n"
+        "Building... done\n"
         "It's up! :) https://butt-man-123.herokuapp.com\n"
     )
 

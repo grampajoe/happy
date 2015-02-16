@@ -6,19 +6,27 @@ from .heroku import Heroku
 from time import sleep
 
 
-def up(tarball_url):
-    """Brings up a Heroku app.
+def create(tarball_url):
+    """Creates a Heroku app-setup build.
 
     :param tarball_url: URL of a tarball containing an ``app.json``.
-    :returns: The app name.
+    :returns: A tuple with ``(build_id, app_name)``.
     """
     api = Heroku()
 
     data = api.create_build(tarball_url=tarball_url)
 
+    return (data['id'], data['app']['name'])
+
+
+def wait(build_id):
+    """Waits for an app-setup build to finish.
+
+    :param build_id: ID of the app-setup build for which to wait.
+    """
+    api = Heroku()
+
     while True:
-        if api.check_build_status(data.get('id')):
+        if api.check_build_status(build_id):
             break
         sleep(3)
-
-    return data['app']['name']
