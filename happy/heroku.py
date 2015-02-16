@@ -10,6 +10,10 @@ class APIError(Exception):
     """A Heroku API error!!! Oh no!!!!!!!"""
 
 
+class BuildError(Exception):
+    """Something went wrong with the build!!!!!"""
+
+
 class Heroku():
     """Methods for interacting with the Heroku API."""
     def api_request(self, method, endpoint, data=None, *args, **kwargs):
@@ -59,3 +63,16 @@ class Heroku():
         }
 
         return self.api_request('POST', '/app-setups', data=data)
+
+    def check_build_status(self, build_id):
+        """Checks the status of an app-setups build."""
+        data = self.api_request('GET', '/app-setups/%s' % build_id)
+
+        status = data.get('status')
+
+        if status == 'pending':
+            return False
+        elif status == 'succeeded':
+            return True
+        else:
+            raise BuildError(data.get('failure_message'))

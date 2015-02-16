@@ -5,7 +5,7 @@ import json
 import mock
 import pytest
 
-from happy.heroku import Heroku, APIError
+from happy.heroku import Heroku, APIError, BuildError
 
 
 def test_heroku():
@@ -99,3 +99,50 @@ def test_heroku_create_build(api_request):
     )
 
     assert result == fake_json
+
+
+@mock.patch.object(Heroku, 'api_request')
+def test_heroku_check_build_status(api_request):
+    """Heroku.check_build_status should send a GET to /app-setups/:id."""
+    api_request.return_value = {'status': 'pending'}
+    heroku = Heroku()
+
+    heroku.check_build_status('123')
+
+    api_request.assert_called_with('GET', '/app-setups/123')
+
+
+@mock.patch.object(Heroku, 'api_request')
+def test_heroku_check_build_status_pending(api_request):
+    """Heroku.check_build_status should return False on pending."""
+    api_request.return_value = {'status': 'pending'}
+
+    heroku = Heroku()
+
+    assert heroku.check_build_status('123') == False
+
+
+@mock.patch.object(Heroku, 'api_request')
+def test_heroku_check_build_status_succeeded(api_request):
+    """Heroku.check_build_status should return True on succeeded."""
+    api_request.return_value = {'status': 'succeeded'}
+
+    heroku = Heroku()
+
+    assert heroku.check_build_status('123') == True
+
+
+@mock.patch.object(Heroku, 'api_request')
+def test_heroku_check_build_status_failed(api_request):
+    """Heroku.check_build_status should raise BuildError on failed."""
+    api_request.return_value = {
+        'status': 'failed',
+        'failure_message': 'oops',
+    }
+
+    heroku = Heroku()
+
+    with pytest.raises(BuildError) as exc:
+        heroku.check_build_status('123')
+
+    assert 'oops' in str(exc.value)

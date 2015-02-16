@@ -38,3 +38,21 @@ def test_up_returns_app_name(heroku):
     app_name = happy.up(tarball_url='example.com')
 
     assert app_name == 'butt-man-123'
+
+
+def test_up_waits_for_build(heroku):
+    """Should wait for the build to complete."""
+    heroku.create_build.return_value = {
+        'id': '12345',
+        'app': {'name': 'butt-man-123'},
+    }
+    heroku.check_build_status.side_effect = (False, False, True)
+
+    with mock.patch('happy.sleep'):  # Ain't nobody got time etc.
+        happy.up(tarball_url='example.com')
+
+    heroku.check_build_status.assert_has_calls([
+        mock.call('12345'),
+        mock.call('12345'),
+        mock.call('12345'),
+    ])
