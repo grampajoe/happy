@@ -133,6 +133,29 @@ def test_down(delete, runner):
 
 
 @mock.patch('happy.delete')
+def test_down_deletes_app_name_file(delete, runner):
+    """`happy.down` should delete the .happy file."""
+    with runner.isolated_filesystem():
+        with open('.happy', 'w') as f:
+            f.write('butt-man-123')
+
+        runner.invoke(cli, ['down'])
+
+        with pytest.raises(IOError):
+            open('.happy', 'r')
+
+
+@mock.patch('happy.delete')
+def test_down_no_app(delete, runner):
+    """With no app to delete, down should fail."""
+    with runner.isolated_filesystem():
+        result = runner.invoke(cli, ['down'])
+
+    assert delete.called == False
+    assert result.exit_code == 1
+
+
+@mock.patch('happy.delete')
 def test_down_prints_info(delete, runner):
     """`happy.down` should print status info."""
     with runner.isolated_filesystem():
