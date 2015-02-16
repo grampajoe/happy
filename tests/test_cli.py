@@ -151,7 +151,7 @@ def test_down_no_app(delete, runner):
     with runner.isolated_filesystem():
         result = runner.invoke(cli, ['down'])
 
-    assert delete.called == False
+    assert delete.called is False
     assert result.exit_code == 1
 
 
