@@ -23,6 +23,21 @@ class Heroku(object):
         """
         self._auth_token = auth_token
 
+    def _get_session(self):
+        """Returns a prepared ``Session`` instance."""
+        session = Session()
+
+        session.headers = {
+            'Content-type': 'application/json',
+            'Accept': 'application/vnd.heroku+json; version=3',
+        }
+
+        if self._auth_token:
+            session.trust_env = False  # Effectively disable netrc auth
+            session.headers['Authorization'] = 'Bearer %s' % self._auth_token
+
+        return session
+
     def api_request(self, method, endpoint, data=None, *args, **kwargs):
         """Sends an API request to Heroku.
 
@@ -31,25 +46,13 @@ class Heroku(object):
         :param data: A dict sent as JSON in the body of the request.
         :returns: A dict represntation of the JSON response.
         """
-        session = Session()
+        session = self._get_session()
 
         api_root = 'https://api.heroku.com'
         url = api_root + endpoint
 
-        headers = {
-            'Content-type': 'application/json',
-            'Accept': 'application/vnd.heroku+json; version=3',
-        }
-
-        if self._auth_token:
-            session.trust_env = False  # Effectively disable netrc auth
-            headers['Authorization'] = 'Bearer %s' % self._auth_token
-
         if data:
             data = json.dumps(data)
-
-        kwargs.setdefault('headers', {})
-        kwargs['headers'].update(headers)
 
         response = session.request(method, url, data=data, *args, **kwargs)
 

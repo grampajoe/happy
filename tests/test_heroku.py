@@ -27,30 +27,39 @@ def test_heroku_api_request(session):
         headers={'test': 'header'},
     )
 
-    assert session().trust_env
     session().request.assert_called_with(
         'POST',
         'https://api.heroku.com/endpoint',
         data=json.dumps({'butt': 'man'}),
         headers={
-            'Content-type': 'application/json',
-            'Accept': 'application/vnd.heroku+json; version=3',
             'test': 'header',
         },
     )
 
 
 @mock.patch('happy.heroku.Session')
+def test_heroku_api_request_headers(session):
+    """Heroku.api_request should attach common headers to the session."""
+    heroku = Heroku()
+
+    heroku.api_request('GET', '/test')
+
+    assert session().trust_env
+    assert session().headers == {
+        'Content-type': 'application/json',
+        'Accept': 'application/vnd.heroku+json; version=3',
+    }
+
+
+@mock.patch('happy.heroku.Session')
 def test_heroku_api_request_auth_token(session):
-    """Heroku.api_request should pass in its auth token."""
+    """Heroku.api_request should send its auth token."""
     heroku = Heroku(auth_token='12345')
 
     heroku.api_request('GET', '/test')
 
-    args_, kwargs = session().request.call_args
-
     assert session().trust_env is False
-    assert kwargs['headers']['Authorization'] == 'Bearer 12345'
+    assert session().headers['Authorization'] == 'Bearer 12345'
 
 
 @mock.patch('happy.heroku.Session')
