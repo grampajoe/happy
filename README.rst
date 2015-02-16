@@ -59,7 +59,7 @@ Then, you can get rid of it like:
 .. _Heroku toolbelt: https://toolbelt.heroku.com/
 
 Commands
--------
+--------
 
 up
 ~~
