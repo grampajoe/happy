@@ -3,7 +3,7 @@ Heroku API helpers.
 """
 import json
 
-import requests
+from requests import Session
 
 
 class APIError(Exception):
@@ -31,6 +31,8 @@ class Heroku(object):
         :param data: A dict sent as JSON in the body of the request.
         :returns: A dict represntation of the JSON response.
         """
+        session = Session()
+
         api_root = 'https://api.heroku.com'
         url = api_root + endpoint
 
@@ -40,6 +42,7 @@ class Heroku(object):
         }
 
         if self._auth_token:
+            session.trust_env = False  # Effectively disable netrc auth
             headers['Authorization'] = 'Bearer %s' % self._auth_token
 
         if data:
@@ -48,7 +51,7 @@ class Heroku(object):
         kwargs.setdefault('headers', {})
         kwargs['headers'].update(headers)
 
-        response = requests.request(method, url, data=data, *args, **kwargs)
+        response = session.request(method, url, data=data, *args, **kwargs)
 
         if not response.ok:
             try:
