@@ -43,7 +43,8 @@ Log in with the `Heroku toolbelt`_ , then do this:
 
   $ pip install happy
   $ happy up
-  Creating app...
+  Creating app... butt-man-123
+  Building... done
   It's up! :) https://butt-man-123.herokuapp.com
 
 That's it! You made a temporary app with all the fixins, which you can
@@ -54,7 +55,7 @@ Then, you can get rid of it like:
 .. code:: text
 
   $ happy down
-  Destroying app...
+  Destroying app... done
   It's down. :(
 
 .. _app.json manifest: https://devcenter.heroku.com/articles/app-json-schema
