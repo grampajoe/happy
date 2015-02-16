@@ -146,3 +146,16 @@ def test_heroku_check_build_status_failed(api_request):
         heroku.check_build_status('123')
 
     assert 'oops' in str(exc.value)
+
+
+@mock.patch.object(Heroku, 'api_request')
+def test_heroku_delete_app(api_request):
+    """Heroku.delete_app should delete an app."""
+    heroku = Heroku()
+
+    heroku.delete_app(app_name='butt-man-123')
+
+    api_request.assert_called_with(
+        'DELETE',
+        '/apps/butt-man-123',
+    )

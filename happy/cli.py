@@ -29,6 +29,12 @@ def _write_app_name(app_name):
         f.write(str(app_name))
 
 
+def _read_app_name():
+    """Reads the app name from the .happy file."""
+    with click.open_file('.happy', 'r') as f:
+        return f.read().strip()
+
+
 @click.group(name='happy')
 def cli():
     """Quickly set up and tear down Heroku apps!"""
@@ -58,3 +64,16 @@ def up(tarball_url):
 
     click.echo('done')
     click.echo("It's up! :) https://%s.herokuapp.com" % app_name)
+
+
+@cli.command(name='down')
+def down():
+    """Brings down a Heroku app."""
+    app_name = _read_app_name()
+
+    click.echo('Destroying app %s... ' % app_name, nl=False)
+
+    happy.delete(app_name=app_name)
+
+    click.echo('done')
+    click.echo("It's down. :(")

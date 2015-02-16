@@ -55,7 +55,7 @@ Then, you can get rid of it like:
 .. code:: text
 
   $ happy down
-  Destroying app... done
+  Destroying app butt-man-123... done
   It's down. :(
 
 .. _app.json manifest: https://devcenter.heroku.com/articles/app-json-schema
@@ -69,10 +69,20 @@ up
 
 Brings up a Heroku app.
 
+The app name is stored in a file called ``.happy`` in the working directory so
+happy can find it later.
+
 - ``--tarball-url``
 
   (optional) URL of the tarball containing app.json. If this is not given,
   happy tries to infer it from an ``app.json`` file in the current directory.
+
+down
+~~~~
+
+Brings down a Heroku app.
+
+The app name is read from a file called ``.happy`` in the working directory.
 
 Running the tests
 -----------------

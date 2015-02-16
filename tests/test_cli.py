@@ -112,10 +112,36 @@ def test_up_prints_info(create, wait, runner):
     with runner.isolated_filesystem():
         result = runner.invoke(cli, ['up', '--tarball-url=example.com'])
 
-    expected = (
+    assert result.output == (
         "Creating app... butt-man-123\n"
         "Building... done\n"
         "It's up! :) https://butt-man-123.herokuapp.com\n"
     )
 
-    assert result.output == expected
+
+@mock.patch('happy.delete')
+def test_down(delete, runner):
+    """`happy.down` should delete the app."""
+    with runner.isolated_filesystem():
+        with open('.happy', 'w') as f:
+            f.write('butt-man-123')
+
+        result = runner.invoke(cli, ['down'])
+
+    delete.assert_called_with(app_name='butt-man-123')
+    assert result.exit_code == 0
+
+
+@mock.patch('happy.delete')
+def test_down_prints_info(delete, runner):
+    """`happy.down` should print status info."""
+    with runner.isolated_filesystem():
+        with open('.happy', 'w') as f:
+            f.write('butt-man-123')
+
+        result = runner.invoke(cli, ['down'])
+
+    assert result.output == (
+        "Destroying app butt-man-123... done\n"
+        "It's down. :(\n"
+    )
