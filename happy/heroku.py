@@ -14,7 +14,7 @@ class BuildError(Exception):
     """Something went wrong with the build!!!!!"""
 
 
-class Heroku():
+class Heroku(object):
     """Methods for interacting with the Heroku API."""
     def api_request(self, method, endpoint, data=None, *args, **kwargs):
         """Sends an API request to Heroku.
