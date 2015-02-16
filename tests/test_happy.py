@@ -4,8 +4,13 @@ Tests for core happy functionality.
 import mock
 import pytest
 
-import happy
+from happy import Happy
 from happy.heroku import Heroku
+
+
+@pytest.fixture
+def happy():
+    return Happy()
 
 
 @pytest.fixture
@@ -20,14 +25,14 @@ def heroku(request):
     return cls()
 
 
-def test_create(heroku):
+def test_create(happy, heroku):
     """Should create an app build on Heroku."""
     happy.create(tarball_url='tarball-url')
 
     heroku.create_build.assert_called_with(tarball_url='tarball-url')
 
 
-def test_create_returns_app_name(heroku):
+def test_create_returns_app_name(happy, heroku):
     """Should return the app name and id from the build."""
     heroku.create_build.return_value = {
         'id': '12345',
@@ -42,7 +47,7 @@ def test_create_returns_app_name(heroku):
     assert app_name == 'butt-man-123'
 
 
-def test_wait(heroku):
+def test_wait(happy, heroku):
     """Should wait for the build to complete."""
     heroku.check_build_status.side_effect = (False, False, True)
 
@@ -56,7 +61,7 @@ def test_wait(heroku):
     ])
 
 
-def test_delete(heroku):
+def test_delete(happy, heroku):
     """Should delete the app."""
     happy.delete(app_name='butt-man-123')
 

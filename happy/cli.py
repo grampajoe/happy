@@ -8,7 +8,7 @@ import sys
 
 import click
 
-import happy
+from happy import Happy
 
 
 def _infer_tarball_url():
@@ -59,6 +59,8 @@ def up(tarball_url):
         click.echo('No tarball URL found.')
         sys.exit(1)
 
+    happy = Happy()
+
     click.echo('Creating app... ', nl=False)
 
     build_id, app_name = happy.create(tarball_url=tarball_url)
@@ -83,6 +85,8 @@ def down():
     if not app_name:
         click.echo('No app is running.')
         sys.exit(1)
+
+    happy = Happy()
 
     click.echo('Destroying app %s... ' % app_name, nl=False)
 
