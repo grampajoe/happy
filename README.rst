@@ -60,6 +60,19 @@ Then, you can get rid of it like:
 .. _app.json manifest: https://devcenter.heroku.com/articles/app-json-schema
 .. _Heroku toolbelt: https://toolbelt.heroku.com/
 
+Commands
+-------
+
+up
+~~
+
+Brings up a Heroku app.
+
+- ``--tarball-url``
+
+  (optional) URL of the tarball containing app.json. If this is not given,
+  happy tries to infer it from an ``app.json`` file in the current directory.
+
 Running the tests
 -----------------
 
