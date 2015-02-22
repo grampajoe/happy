@@ -7,7 +7,7 @@ with open('README.rst') as f:
 
 setup(
     name="happy",
-    version="1.1.0",
+    version="1.2.0",
     author="Joe Friedl",
     author_email="joe@joefriedl.net",
     url="https://github.com/grampajoe/happy",
