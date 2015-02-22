@@ -46,7 +46,10 @@ def _read_app_name():
 
 def _delete_app_name_file():
     """Deletes the .happy file. :("""
-    os.remove('.happy')
+    try:
+        os.remove('.happy')
+    except (IOError, OSError):
+        pass
 
 
 @click.group(name='happy')
@@ -98,14 +101,27 @@ def up(tarball_url, auth_token, env, app_name):
 
 @cli.command(name='down')
 @click.option('--auth-token', help='Heroku API auth token.')
+@click.option('--force', is_flag=True, help='Force deletion without input.')
 @click.argument('app_name', required=False)
-def down(auth_token, app_name):
+def down(auth_token, force, app_name):
     """Brings down a Heroku app."""
+    if not app_name:
+        click.echo(
+            'WARNING: Inferring the app name when deleting is deprecated. '
+            'Starting with happy 2.0, the app_name parameter will be required.'
+        )
+
     app_name = app_name or _read_app_name()
 
     if not app_name:
-        click.echo('No app is running.')
+        click.echo('No app name given.')
         sys.exit(1)
+
+    if not force:
+        click.confirm(
+            'Are you sure you want to delete %s?' % app_name,
+            abort=True,
+        )
 
     happy = Happy(auth_token=auth_token)
 

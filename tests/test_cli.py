@@ -125,7 +125,7 @@ def test_up_no_tarball_url(runner, happy):
 @isolated
 def test_up_no_tarball_url_or_app_json(runner, happy):
     """Running up should fail if app.json and --tarball-url are missing."""
-    os.unlink('app.json')
+    os.remove('app.json')
 
     result = runner.invoke(cli, ['up'])
 
@@ -189,7 +189,7 @@ def test_down(runner, happy):
     with open('.happy', 'w') as f:
         f.write('butt-man-123')
 
-    result = runner.invoke(cli, ['down'])
+    result = runner.invoke(cli, ['down', '--force'])
 
     happy().delete.assert_called_with(app_name='butt-man-123')
     assert result.exit_code == 0
@@ -198,11 +198,22 @@ def test_down(runner, happy):
 @isolated
 def test_down_app_name(runner, happy):
     """Running down should pass the first param as the app name."""
-    runner.invoke(cli, ['down', 'app-name-123'])
+    runner.invoke(cli, ['down', 'app-name-123', '--force'])
 
     args_, kwargs = happy().delete.call_args
 
     assert kwargs['app_name'] == 'app-name-123'
+
+
+@isolated
+def test_up_no_app_name_deprecation(runner, happy):
+    """Running down without an app_name should warn about deprecation."""
+    with open('.happy', 'w') as f:
+        f.write('butt-man-123')
+
+    result = runner.invoke(cli, ['down'])
+
+    assert 'deprecated' in result.output
 
 
 @isolated
@@ -213,6 +224,7 @@ def test_down_auth_token(runner, happy):
 
     runner.invoke(cli, [
         'down',
+        '--force',
         '--auth-token=12345',
     ])
 
@@ -227,7 +239,7 @@ def test_down_deletes_app_name_file(runner, happy):
     with open('.happy', 'w') as f:
         f.write('butt-man-123')
 
-    runner.invoke(cli, ['down'])
+    runner.invoke(cli, ['down', '--force'])
 
     with pytest.raises(IOError):
         open('.happy', 'r')
@@ -236,7 +248,7 @@ def test_down_deletes_app_name_file(runner, happy):
 @isolated
 def test_down_no_app(runner, happy):
     """With no app to delete, down should fail."""
-    result = runner.invoke(cli, ['down'])
+    result = runner.invoke(cli, ['down', '--force'])
 
     assert happy().delete.called is False
     assert result.exit_code == 1
@@ -245,12 +257,25 @@ def test_down_no_app(runner, happy):
 @isolated
 def test_down_prints_info(runner, happy):
     """Running down should print status info."""
-    with open('.happy', 'w') as f:
-        f.write('butt-man-123')
-
-    result = runner.invoke(cli, ['down'])
+    result = runner.invoke(cli, ['down', 'butt-man-123', '--force'])
 
     assert result.output == (
         "Destroying app butt-man-123... done\n"
         "It's down. :(\n"
     )
+
+
+@isolated
+def test_down_prompts_no(runner, happy):
+    """Running down and saying no aborts."""
+    result = runner.invoke(cli, ['down', 'butt-man-123'], input='n\n')
+
+    assert result.exit_code == 1
+
+
+@isolated
+def test_down_prompts_yes(runner, happy):
+    """Running down and saying yes continues."""
+    result = runner.invoke(cli, ['down', 'butt-man-123'], input='y\n')
+
+    assert result.exit_code == 0

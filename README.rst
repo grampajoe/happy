@@ -101,7 +101,6 @@ Usage: `happy down [OPTIONS] [APP_NAME]`
 
 Brings down a Heroku app.
 
-
 - ``APP_NAME``
 
   (optional) Name of the Heroku app to delete. If this is not given, the app
@@ -112,6 +111,10 @@ Brings down a Heroku app.
   (optional) Heroku API auth token. If this is not given, happy assumes you're
   logged in through Heroku CLI, i.e. your token is stored in your ``netrc``
   file.
+
+- ``--force``
+
+  (optional) Suppress the delete confirmation prompt. Useful for automation!
 
 Running the tests
 -----------------
