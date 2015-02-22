@@ -1,6 +1,7 @@
 """
 Tests for the cli commands.
 """
+import os
 import subprocess
 
 import decorator
@@ -114,6 +115,17 @@ def test_up_no_tarball_url(runner, happy):
     """Running up should fail if it can't infer the tarball URL."""
     with open('app.json', 'w') as f:
         f.write('{"description": "No repository????"}')
+
+    result = runner.invoke(cli, ['up'])
+
+    assert result.exit_code == 1
+    assert 'no tarball' in result.output.lower()
+
+
+@isolated
+def test_up_no_tarball_url_or_app_json(runner, happy):
+    """Running up should fail if app.json and --tarball-url are missing."""
+    os.unlink('app.json')
 
     result = runner.invoke(cli, ['up'])
 
