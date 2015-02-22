@@ -39,7 +39,7 @@ Log in with the `Heroku toolbelt`_ , then do this:
 .. code:: text
 
   $ pip install happy
-  $ happy up
+  $ happy up butt-man-123
   Creating app... butt-man-123
   Building... done
   It's up! :) https://butt-man-123.herokuapp.com
@@ -51,7 +51,8 @@ Then, you can get rid of it like:
 
 .. code:: text
 
-  $ happy down
+  $ happy down butt-man-123
+  Are you sure you want to delete butt-man-123? [y/N]: y
   Destroying app butt-man-123... done
   It's down. :(
 
