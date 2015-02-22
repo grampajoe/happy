@@ -2,8 +2,8 @@
 Tests for the cli commands.
 """
 import subprocess
-from functools import wraps
 
+import decorator
 import mock
 import pytest
 from click.testing import CliRunner
@@ -39,15 +39,14 @@ def isolated(func):
 
     This also stubs out an app.json for convenience.
     """
-    @wraps(func)
-    def wrapped(runner, *args, **kwargs):
+    def wrapped(func, runner, *args, **kwargs):
         with runner.isolated_filesystem():
             with open('app.json', 'w') as f:
                 f.write('{"repository": "https://github.com/butt/man"}')
 
             return func(runner, *args, **kwargs)
 
-    return wrapped
+    return decorator.decorator(wrapped, func)
 
 
 def test_help(runner):
