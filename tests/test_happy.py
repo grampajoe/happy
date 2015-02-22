@@ -40,6 +40,18 @@ def test_create(heroku, happy):
     happy.create(tarball_url='tarball-url')
 
     heroku().create_build.assert_called_with(
+        app_name=None,
+        env=None,
+        tarball_url='tarball-url',
+    )
+
+
+def test_create_app_name(heroku, happy):
+    """Should pass app_name to Heroku.create_build."""
+    happy.create(tarball_url='tarball-url', app_name='app-name-123')
+
+    heroku().create_build.assert_called_with(
+        app_name='app-name-123',
         env=None,
         tarball_url='tarball-url',
     )
@@ -52,6 +64,7 @@ def test_create_env(heroku, happy):
     heroku().create_build.assert_called_with(
         tarball_url='tarball-url',
         env={'TEST': 'env'},
+        app_name=None,
     )
 
 

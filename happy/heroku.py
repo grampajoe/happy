@@ -66,11 +66,12 @@ class Heroku(object):
 
         return response.json()
 
-    def create_build(self, tarball_url, env=None):
+    def create_build(self, tarball_url, env=None, app_name=None):
         """Creates an app-setups build. Returns response data as a dict.
 
         :param tarball_url: URL of a tarball containing an ``app.json``.
         :param env: Dict containing environment variable overrides.
+        :param app_name: Name of the Heroku app to create.
         :returns: Response data as a ``dict``.
         """
         data = {
@@ -81,6 +82,9 @@ class Heroku(object):
 
         if env:
             data['overrides'] = {'env': env}
+
+        if app_name:
+            data['app'] = {'name': app_name}
 
         return self.api_request('POST', '/app-setups', data=data)
 

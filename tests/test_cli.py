@@ -1,8 +1,10 @@
 """
 Tests for the cli commands.
 """
+import os
 import subprocess
 
+import decorator
 import mock
 import pytest
 from click.testing import CliRunner
@@ -33,6 +35,21 @@ def runner():
     return CliRunner()
 
 
+def isolated(func):
+    """Runs a method in an isolated filesystem.
+
+    This also stubs out an app.json for convenience.
+    """
+    def wrapped(func, runner, *args, **kwargs):
+        with runner.isolated_filesystem():
+            with open('app.json', 'w') as f:
+                f.write('{"repository": "https://github.com/butt/man"}')
+
+            return func(runner, *args, **kwargs)
+
+    return decorator.decorator(wrapped, func)
+
+
 def test_help(runner):
     """Running happy should print the help."""
     result = runner.invoke(cli)
@@ -41,45 +58,51 @@ def test_help(runner):
     assert 'Usage: happy' in result.output
 
 
-def test_up(happy, runner):
+@isolated
+def test_up(runner, happy):
     """Running up should exit cleanly."""
-    with runner.isolated_filesystem():
-        result = runner.invoke(cli, ['up', '--tarball-url=example.com'])
+    result = runner.invoke(cli, ['up'])
 
     assert result.exit_code == 0
 
 
-def test_up_auth_token(happy, runner):
+@isolated
+def test_up_app_name(runner, happy):
+    """Running up should pass the first param as the app name."""
+    runner.invoke(cli, ['up', 'app-name-123'])
+
+    args_, kwargs = happy().create.call_args
+
+    assert kwargs['app_name'] == 'app-name-123'
+
+
+@isolated
+def test_up_auth_token(runner, happy):
     """Running up should pass the --auth-token option to Happy."""
-    with runner.isolated_filesystem():
-        runner.invoke(cli, [
-            'up',
-            '--tarball-url=example.com',
-            '--auth-token=12345',
-        ])
+    runner.invoke(cli, [
+        'up',
+        '--auth-token=12345',
+    ])
 
     args_, kwargs = happy.call_args
 
     assert kwargs['auth_token'] == '12345'
 
 
-def test_up_tarball_url(happy, runner):
+@isolated
+def test_up_tarball_url(runner, happy):
     """Running up should pass the --tarball-url option to Happy.create."""
-    with runner.isolated_filesystem():
-        runner.invoke(cli, ['up', '--tarball-url=example.com'])
+    runner.invoke(cli, ['up', '--tarball-url=passed-in.com'])
 
     args_, kwargs = happy().create.call_args
 
-    assert kwargs['tarball_url'] == 'example.com'
+    assert kwargs['tarball_url'] == 'passed-in.com'
 
 
-def test_up_tarball_url_app_json(happy, runner):
+@isolated
+def test_up_tarball_url_app_json(runner, happy):
     """Running up should infer the tarball URL from app.json."""
-    with runner.isolated_filesystem():
-        with open('app.json', 'w') as f:
-            f.write('{"repository": "https://github.com/butt/man"}')
-
-        runner.invoke(cli, ['up'])
+    runner.invoke(cli, ['up'])
 
     args_, kwargs = happy().create.call_args
 
@@ -87,26 +110,39 @@ def test_up_tarball_url_app_json(happy, runner):
         'https://github.com/butt/man/tarball/master/'
 
 
-def test_up_no_tarball_url(happy, runner):
+@isolated
+def test_up_no_tarball_url(runner, happy):
     """Running up should fail if it can't infer the tarball URL."""
-    with runner.isolated_filesystem():
-        result = runner.invoke(cli, ['up'])
+    with open('app.json', 'w') as f:
+        f.write('{"description": "No repository????"}')
+
+    result = runner.invoke(cli, ['up'])
 
     assert result.exit_code == 1
     assert 'no tarball' in result.output.lower()
 
 
-def test_up_env(happy, runner):
+@isolated
+def test_up_no_tarball_url_or_app_json(runner, happy):
+    """Running up should fail if app.json and --tarball-url are missing."""
+    os.remove('app.json')
+
+    result = runner.invoke(cli, ['up'])
+
+    assert result.exit_code == 1
+    assert 'no tarball' in result.output.lower()
+
+
+@isolated
+def test_up_env(runner, happy):
     """Running up --env should pass environment overrides."""
-    with runner.isolated_filesystem():
-        runner.invoke(cli, [
-            'up',
-            '--env',
-            'FART=test',
-            '--env',
-            'BUTT=wow',
-            '--tarball-url=example.com',
-        ])
+    runner.invoke(cli, [
+        'up',
+        '--env',
+        'FART=test',
+        '--env',
+        'BUTT=wow',
+    ])
 
     args_, kwargs = happy().create.call_args
 
@@ -116,25 +152,29 @@ def test_up_env(happy, runner):
     }
 
 
-def test_up_writes_app_name(happy, runner):
+@isolated
+def test_up_writes_app_name(runner, happy):
     """Running up should write the app name to .happy."""
-    with runner.isolated_filesystem():
-        runner.invoke(cli, ['up', '--tarball-url=example.com'])
+    runner.invoke(cli, ['up'])
 
-        with open('.happy') as f:
-            app_name = f.read()
+    with open('.happy') as f:
+        app_name = f.read()
 
     assert app_name == 'butt-man-123'
 
 
-def test_up_waits_for_build(happy, runner):
+@isolated
+def test_up_waits_for_build(runner, happy):
     """The up command should wait for builds to complete."""
+    runner.invoke(cli, ['up'])
+
+    assert happy().wait.called
 
 
-def test_up_prints_info(happy, runner):
+@isolated
+def test_up_prints_info(runner, happy):
     """Running up should print status info."""
-    with runner.isolated_filesystem():
-        result = runner.invoke(cli, ['up', '--tarball-url=example.com'])
+    result = runner.invoke(cli, ['up'])
 
     assert result.output == (
         "Creating app... butt-man-123\n"
@@ -143,64 +183,99 @@ def test_up_prints_info(happy, runner):
     )
 
 
-def test_down(happy, runner):
+@isolated
+def test_down(runner, happy):
     """Running down should delete the app."""
-    with runner.isolated_filesystem():
-        with open('.happy', 'w') as f:
-            f.write('butt-man-123')
+    with open('.happy', 'w') as f:
+        f.write('butt-man-123')
 
-        result = runner.invoke(cli, ['down'])
+    result = runner.invoke(cli, ['down', '--force'])
 
     happy().delete.assert_called_with(app_name='butt-man-123')
     assert result.exit_code == 0
 
 
-def test_down_auth_token(happy, runner):
-    """Running down should pass the --auth-token option to Happy."""
-    with runner.isolated_filesystem():
-        with open('.happy', 'w') as f:
-            f.write('butt-man-123')
+@isolated
+def test_down_app_name(runner, happy):
+    """Running down should pass the first param as the app name."""
+    runner.invoke(cli, ['down', 'app-name-123', '--force'])
 
-        runner.invoke(cli, [
-            'down',
-            '--auth-token=12345',
-        ])
+    args_, kwargs = happy().delete.call_args
+
+    assert kwargs['app_name'] == 'app-name-123'
+
+
+@isolated
+def test_up_no_app_name_deprecation(runner, happy):
+    """Running down without an app_name should warn about deprecation."""
+    with open('.happy', 'w') as f:
+        f.write('butt-man-123')
+
+    result = runner.invoke(cli, ['down'])
+
+    assert 'deprecated' in result.output
+
+
+@isolated
+def test_down_auth_token(runner, happy):
+    """Running down should pass the --auth-token option to Happy."""
+    with open('.happy', 'w') as f:
+        f.write('butt-man-123')
+
+    runner.invoke(cli, [
+        'down',
+        '--force',
+        '--auth-token=12345',
+    ])
 
     args_, kwargs = happy.call_args
 
     assert kwargs['auth_token'] == '12345'
 
 
-def test_down_deletes_app_name_file(happy, runner):
+@isolated
+def test_down_deletes_app_name_file(runner, happy):
     """Running down should delete the .happy file."""
-    with runner.isolated_filesystem():
-        with open('.happy', 'w') as f:
-            f.write('butt-man-123')
+    with open('.happy', 'w') as f:
+        f.write('butt-man-123')
 
-        runner.invoke(cli, ['down'])
+    runner.invoke(cli, ['down', '--force'])
 
-        with pytest.raises(IOError):
-            open('.happy', 'r')
+    with pytest.raises(IOError):
+        open('.happy', 'r')
 
 
-def test_down_no_app(happy, runner):
+@isolated
+def test_down_no_app(runner, happy):
     """With no app to delete, down should fail."""
-    with runner.isolated_filesystem():
-        result = runner.invoke(cli, ['down'])
+    result = runner.invoke(cli, ['down', '--force'])
 
     assert happy().delete.called is False
     assert result.exit_code == 1
 
 
-def test_down_prints_info(happy, runner):
+@isolated
+def test_down_prints_info(runner, happy):
     """Running down should print status info."""
-    with runner.isolated_filesystem():
-        with open('.happy', 'w') as f:
-            f.write('butt-man-123')
-
-        result = runner.invoke(cli, ['down'])
+    result = runner.invoke(cli, ['down', 'butt-man-123', '--force'])
 
     assert result.output == (
         "Destroying app butt-man-123... done\n"
         "It's down. :(\n"
     )
+
+
+@isolated
+def test_down_prompts_no(runner, happy):
+    """Running down and saying no aborts."""
+    result = runner.invoke(cli, ['down', 'butt-man-123'], input='n\n')
+
+    assert result.exit_code == 1
+
+
+@isolated
+def test_down_prompts_yes(runner, happy):
+    """Running down and saying yes continues."""
+    result = runner.invoke(cli, ['down', 'butt-man-123'], input='y\n')
+
+    assert result.exit_code == 0

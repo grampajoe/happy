@@ -64,10 +64,17 @@ Commands
 up
 ~~
 
+Usage: `happy up [OPTIONS] [APP_NAME]`
+
 Brings up a Heroku app.
 
 The app name is stored in a file called ``.happy`` in the working directory so
 happy can find it later.
+
+- ``APP_NAME``
+
+  (optional) Name of the Heroku app to create. If this is not given, one is
+  chosen for you by the Heroku API.
 
 - ``--auth-token``
 
@@ -90,15 +97,24 @@ happy can find it later.
 down
 ~~~~
 
+Usage: `happy down [OPTIONS] [APP_NAME]`
+
 Brings down a Heroku app.
 
-The app name is read from a file called ``.happy`` in the working directory.
+- ``APP_NAME``
+
+  (optional) Name of the Heroku app to delete. If this is not given, the app
+  name is read from a file called ``.happy`` in the working directory.
 
 - ``--auth-token``
 
   (optional) Heroku API auth token. If this is not given, happy assumes you're
   logged in through Heroku CLI, i.e. your token is stored in your ``netrc``
   file.
+
+- ``--force``
+
+  (optional) Suppress the delete confirmation prompt. Useful for automation!
 
 Running the tests
 -----------------
