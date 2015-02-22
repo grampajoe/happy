@@ -126,7 +126,7 @@ def test_heroku_create_build(api_request):
 
 @mock.patch.object(Heroku, 'api_request')
 def test_heroku_create_build_env(api_request):
-    """Heroku.create_build should send a POST to /app-setups."""
+    """Heroku.create_build should send env overrides."""
     heroku = Heroku()
 
     result = heroku.create_build('tarball-url', env={'HELLO': 'world'})
@@ -137,6 +137,23 @@ def test_heroku_create_build_env(api_request):
         data={
             'source_blob': {'url': 'tarball-url'},
             'overrides': {'env': {'HELLO': 'world'}},
+        },
+    )
+
+
+@mock.patch.object(Heroku, 'api_request')
+def test_heroku_create_build_app_name(api_request):
+    """Heroku.create_build should send the app name."""
+    heroku = Heroku()
+
+    result = heroku.create_build('tarball-url', app_name='app-name-123')
+
+    api_request.assert_called_with(
+        'POST',
+        '/app-setups',
+        data={
+            'source_blob': {'url': 'tarball-url'},
+            'app': {'name': 'app-name-123'},
         },
     )
 

@@ -67,6 +67,16 @@ def test_up(runner, happy):
 
 
 @isolated
+def test_up_app_name(runner, happy):
+    """Running up should pass the first param as the app name."""
+    runner.invoke(cli, ['up', 'app-name-123'])
+
+    args_, kwargs = happy().create.call_args
+
+    assert kwargs['app_name'] == 'app-name-123'
+
+
+@isolated
 def test_up_auth_token(runner, happy):
     """Running up should pass the --auth-token option to Happy."""
     runner.invoke(cli, [

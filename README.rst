@@ -64,10 +64,17 @@ Commands
 up
 ~~
 
+Usage: `happy up [OPTIONS] [APP_NAME]`
+
 Brings up a Heroku app.
 
 The app name is stored in a file called ``.happy`` in the working directory so
 happy can find it later.
+
+- ``APP_NAME``
+
+  (optional) Name of the Heroku app to create. If this is not given, one is
+  chosen for you by the Heroku API.
 
 - ``--auth-token``
 
@@ -89,6 +96,8 @@ happy can find it later.
 
 down
 ~~~~
+
+Usage: `happy down [OPTIONS]`
 
 Brings down a Heroku app.
 
