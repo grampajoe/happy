@@ -196,6 +196,16 @@ def test_down(runner, happy):
 
 
 @isolated
+def test_down_app_name(runner, happy):
+    """Running down should pass the first param as the app name."""
+    runner.invoke(cli, ['down', 'app-name-123'])
+
+    args_, kwargs = happy().delete.call_args
+
+    assert kwargs['app_name'] == 'app-name-123'
+
+
+@isolated
 def test_down_auth_token(runner, happy):
     """Running down should pass the --auth-token option to Happy."""
     with open('.happy', 'w') as f:

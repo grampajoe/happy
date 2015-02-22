@@ -98,9 +98,10 @@ def up(tarball_url, auth_token, env, app_name):
 
 @cli.command(name='down')
 @click.option('--auth-token', help='Heroku API auth token.')
-def down(auth_token):
+@click.argument('app_name', required=False)
+def down(auth_token, app_name):
     """Brings down a Heroku app."""
-    app_name = _read_app_name()
+    app_name = app_name or _read_app_name()
 
     if not app_name:
         click.echo('No app is running.')

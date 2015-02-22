@@ -97,11 +97,15 @@ happy can find it later.
 down
 ~~~~
 
-Usage: `happy down [OPTIONS]`
+Usage: `happy down [OPTIONS] [APP_NAME]`
 
 Brings down a Heroku app.
 
-The app name is read from a file called ``.happy`` in the working directory.
+
+- ``APP_NAME``
+
+  (optional) Name of the Heroku app to delete. If this is not given, the app
+  name is read from a file called ``.happy`` in the working directory.
 
 - ``--auth-token``
 
