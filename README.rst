@@ -78,7 +78,9 @@ happy can find it later.
 - ``--env``
 
   (optional) Environment variable overrides, e.g. ``--env KEY=value``. For
-  multiple variables, this option can be passed more than once.
+  multiple variables, this option can be passed more than once. Variable names
+  MUST match one of the names in the ``env`` section of your ``app.json``, or
+  the build will fail with an ``invalid app.json`` message.
 
 - ``--tarball-url``
 
