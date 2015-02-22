@@ -35,10 +35,16 @@ def runner():
 
 
 def isolated(func):
-    """Runs a method in an isolated filesystem."""
+    """Runs a method in an isolated filesystem.
+
+    This also stubs out an app.json for convenience.
+    """
     @wraps(func)
     def wrapped(runner, *args, **kwargs):
         with runner.isolated_filesystem():
+            with open('app.json', 'w') as f:
+                f.write('{"repository": "https://github.com/butt/man"}')
+
             return func(runner, *args, **kwargs)
 
     return wrapped
@@ -55,7 +61,7 @@ def test_help(runner):
 @isolated
 def test_up(runner, happy):
     """Running up should exit cleanly."""
-    result = runner.invoke(cli, ['up', '--tarball-url=example.com'])
+    result = runner.invoke(cli, ['up'])
 
     assert result.exit_code == 0
 
@@ -65,7 +71,6 @@ def test_up_auth_token(runner, happy):
     """Running up should pass the --auth-token option to Happy."""
     runner.invoke(cli, [
         'up',
-        '--tarball-url=example.com',
         '--auth-token=12345',
     ])
 
@@ -77,19 +82,16 @@ def test_up_auth_token(runner, happy):
 @isolated
 def test_up_tarball_url(runner, happy):
     """Running up should pass the --tarball-url option to Happy.create."""
-    runner.invoke(cli, ['up', '--tarball-url=example.com'])
+    runner.invoke(cli, ['up', '--tarball-url=passed-in.com'])
 
     args_, kwargs = happy().create.call_args
 
-    assert kwargs['tarball_url'] == 'example.com'
+    assert kwargs['tarball_url'] == 'passed-in.com'
 
 
 @isolated
 def test_up_tarball_url_app_json(runner, happy):
     """Running up should infer the tarball URL from app.json."""
-    with open('app.json', 'w') as f:
-        f.write('{"repository": "https://github.com/butt/man"}')
-
     runner.invoke(cli, ['up'])
 
     args_, kwargs = happy().create.call_args
@@ -101,6 +103,9 @@ def test_up_tarball_url_app_json(runner, happy):
 @isolated
 def test_up_no_tarball_url(runner, happy):
     """Running up should fail if it can't infer the tarball URL."""
+    with open('app.json', 'w') as f:
+        f.write('{"description": "No repository????"}')
+
     result = runner.invoke(cli, ['up'])
 
     assert result.exit_code == 1
@@ -116,7 +121,6 @@ def test_up_env(runner, happy):
         'FART=test',
         '--env',
         'BUTT=wow',
-        '--tarball-url=example.com',
     ])
 
     args_, kwargs = happy().create.call_args
@@ -130,7 +134,7 @@ def test_up_env(runner, happy):
 @isolated
 def test_up_writes_app_name(runner, happy):
     """Running up should write the app name to .happy."""
-    runner.invoke(cli, ['up', '--tarball-url=example.com'])
+    runner.invoke(cli, ['up'])
 
     with open('.happy') as f:
         app_name = f.read()
@@ -146,7 +150,7 @@ def test_up_waits_for_build(runner, happy):
 @isolated
 def test_up_prints_info(runner, happy):
     """Running up should print status info."""
-    result = runner.invoke(cli, ['up', '--tarball-url=example.com'])
+    result = runner.invoke(cli, ['up'])
 
     assert result.output == (
         "Creating app... butt-man-123\n"

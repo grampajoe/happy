@@ -21,7 +21,12 @@ def _infer_tarball_url():
     except IOError:
         return None
 
-    return app_json.get('repository') + '/tarball/master/'
+    repository = app_json.get('repository')
+
+    if not repository:
+        return None
+    else:
+        return app_json.get('repository') + '/tarball/master/'
 
 
 def _write_app_name(app_name):
