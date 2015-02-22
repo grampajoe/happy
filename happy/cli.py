@@ -52,7 +52,8 @@ def cli():
 @cli.command(name='up')
 @click.option('--tarball-url', help='URL of the tarball containing app.json.')
 @click.option('--auth-token', help='Heroku API auth token.')
-def up(tarball_url, auth_token):
+@click.option('--env', multiple=True, help='Env override, e.g. KEY=value.')
+def up(tarball_url, auth_token, env):
     """Brings up a Heroku app."""
     tarball_url = tarball_url or _infer_tarball_url()
 
@@ -60,11 +61,18 @@ def up(tarball_url, auth_token):
         click.echo('No tarball URL found.')
         sys.exit(1)
 
+    if env:
+        # Split ["KEY=value", ...] into {"KEY": "value", ...}
+        env = {
+            arg.split('=')[0]: arg.split('=')[1]
+            for arg in env
+        }
+
     happy = Happy(auth_token=auth_token)
 
     click.echo('Creating app... ', nl=False)
 
-    build_id, app_name = happy.create(tarball_url=tarball_url)
+    build_id, app_name = happy.create(tarball_url=tarball_url, env=env)
 
     click.echo(app_name)
 

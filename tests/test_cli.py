@@ -96,6 +96,26 @@ def test_up_no_tarball_url(happy, runner):
     assert 'no tarball' in result.output.lower()
 
 
+def test_up_env(happy, runner):
+    """Running up --env should pass environment overrides."""
+    with runner.isolated_filesystem():
+        runner.invoke(cli, [
+            'up',
+            '--env',
+            'FART=test',
+            '--env',
+            'BUTT=wow',
+            '--tarball-url=example.com',
+        ])
+
+    args_, kwargs = happy().create.call_args
+
+    assert kwargs['env'] == {
+        'FART': 'test',
+        'BUTT': 'wow',
+    }
+
+
 def test_up_writes_app_name(happy, runner):
     """Running up should write the app name to .happy."""
     with runner.isolated_filesystem():

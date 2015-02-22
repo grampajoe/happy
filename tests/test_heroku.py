@@ -125,6 +125,23 @@ def test_heroku_create_build(api_request):
 
 
 @mock.patch.object(Heroku, 'api_request')
+def test_heroku_create_build_env(api_request):
+    """Heroku.create_build should send a POST to /app-setups."""
+    heroku = Heroku()
+
+    result = heroku.create_build('tarball-url', env={'HELLO': 'world'})
+
+    api_request.assert_called_with(
+        'POST',
+        '/app-setups',
+        data={
+            'source_blob': {'url': 'tarball-url'},
+            'overrides': {'env': {'HELLO': 'world'}},
+        },
+    )
+
+
+@mock.patch.object(Heroku, 'api_request')
 def test_heroku_check_build_status(api_request):
     """Heroku.check_build_status should send a GET to /app-setups/:id."""
     api_request.return_value = {'status': 'pending'}

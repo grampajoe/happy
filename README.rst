@@ -75,6 +75,11 @@ happy can find it later.
   logged in through Heroku CLI, i.e. your token is stored in your ``netrc``
   file.
 
+- ``--env``
+
+  (optional) Environment variable overrides, e.g. ``--env KEY=value``. For
+  multiple variables, this option can be passed more than once.
+
 - ``--tarball-url``
 
   (optional) URL of the tarball containing app.json. If this is not given,

@@ -15,13 +15,14 @@ class Happy(object):
         """
         self._api = Heroku(auth_token=auth_token)
 
-    def create(self, tarball_url):
+    def create(self, tarball_url, env=None):
         """Creates a Heroku app-setup build.
 
         :param tarball_url: URL of a tarball containing an ``app.json``.
+        :param env: Dict containing environment variable overrides.
         :returns: A tuple with ``(build_id, app_name)``.
         """
-        data = self._api.create_build(tarball_url=tarball_url)
+        data = self._api.create_build(tarball_url=tarball_url, env=env)
 
         return (data['id'], data['app']['name'])
 
