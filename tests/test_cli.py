@@ -145,6 +145,9 @@ def test_up_writes_app_name(runner, happy):
 @isolated
 def test_up_waits_for_build(runner, happy):
     """The up command should wait for builds to complete."""
+    runner.invoke(cli, ['up'])
+
+    assert happy().wait.called
 
 
 @isolated
