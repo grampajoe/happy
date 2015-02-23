@@ -65,7 +65,7 @@ Commands
 up
 ~~
 
-Usage: `happy up [OPTIONS] [APP_NAME]`
+Usage: ``happy up [OPTIONS] [APP_NAME]``
 
 Brings up a Heroku app.
 
@@ -98,7 +98,7 @@ happy can find it later.
 down
 ~~~~
 
-Usage: `happy down [OPTIONS] [APP_NAME]`
+Usage: ``happy down [OPTIONS] [APP_NAME]``
 
 Brings down a Heroku app.
 
