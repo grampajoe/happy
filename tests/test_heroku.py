@@ -192,7 +192,7 @@ def test_heroku_check_build_status_succeeded(api_request):
 @mock.patch.object(Heroku, 'api_request')
 def test_heroku_check_build_status_failed(api_request):
     """Heroku.check_build_status should raise BuildError on failed."""
-    api_request.return_value = {
+    api_request.return_value = result = {
         'status': 'failed',
         'failure_message': 'oops',
     }
@@ -202,7 +202,7 @@ def test_heroku_check_build_status_failed(api_request):
     with pytest.raises(BuildError) as exc:
         heroku.check_build_status('123')
 
-    assert 'oops' in str(exc.value)
+    assert str(result) in str(exc.value)
 
 
 @mock.patch.object(Heroku, 'api_request')
