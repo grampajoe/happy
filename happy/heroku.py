@@ -103,7 +103,7 @@ class Heroku(object):
         elif status == 'succeeded':
             return True
         else:
-            raise BuildError(data.get('failure_message'))
+            raise BuildError(str(data))
 
     def delete_app(self, app_name):
         """Deletes an app.
