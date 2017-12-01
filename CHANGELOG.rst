@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+1.2.1 (2017-11-30)
+==================
+
+- Show full error from the Heroku API
+- Use separate pythons instead of tox envs
+
 1.2.0 (2015-02-22)
 ==================
 
