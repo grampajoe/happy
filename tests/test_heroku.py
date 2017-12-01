@@ -176,7 +176,7 @@ def test_heroku_check_build_status_pending(api_request):
 
     heroku = Heroku()
 
-    assert heroku.check_build_status('123') == False
+    assert not heroku.check_build_status('123')
 
 
 @mock.patch.object(Heroku, 'api_request')
@@ -186,7 +186,7 @@ def test_heroku_check_build_status_succeeded(api_request):
 
     heroku = Heroku()
 
-    assert heroku.check_build_status('123') == True
+    assert heroku.check_build_status('123')
 
 
 @mock.patch.object(Heroku, 'api_request')
